@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration package="log4j.test"
+status="WARN">
+<Appenders>
+    <Console name="Console" target="SYSTEM_OUT">
+        <PatternLayout pattern="%d{HH:mm:ss.SSS} [%-5level] [%logger{36}(%t)] %msg%n"/>
+    </Console>
+    <RollingFile name="RollingFile" fileName="./logs/queue_execute.log" filePattern="./logs/queue_execute.%d{yyyy-MM-dd}.log" append="true">
+        <PatternLayout pattern="%d{HH:mm:ss.SSS} [%-5level] [%logger{36}(%t)] %msg%n"/>
+		<Policies>
+			<TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+		</Policies>
+    </RollingFile>
+</Appenders>
+<Loggers>
+    <Logger name="log4j.test.Log4jTest" level="trace">
+        <AppenderRef ref="Console"/>
+        <AppenderRef ref="RollingFile"/>
+    </Logger>
+    <Root level="trace">
+        <AppenderRef ref="Console"/>
+        <AppenderRef ref="RollingFile"/>
+    </Root>
+</Loggers>
+</Configuration>
