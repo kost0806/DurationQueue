@@ -14,13 +14,13 @@ public class MasterQueue {
     private List<QueueItem> items;
     private boolean isRunning;
     private boolean isItemRegistered;
-    private Enqueuer enqueuer;
+    private Slave slave;
     Thread thread;
 
     public MasterQueue() {
         queue = new ArrayList<>();
         items = new ArrayList<>();
-        enqueuer = new Enqueuer(this, items);
+        slave = new Slave(this, items);
     }
 
     private boolean enqueue(QueueItem queueItem) {
@@ -75,8 +75,8 @@ public class MasterQueue {
         }
         isRunning = true;
         runPre();
-        thread = new Thread(new Enqueuer(this, items));
-        thread.setName("Enqueuer");
+        thread = new Thread(new Slave(this, items));
+        thread.setName("Slave");
         thread.start();
         execute();
         onRun.onPostExecute();
@@ -113,11 +113,11 @@ public class MasterQueue {
         abstract void onPostExecute();
     }
 
-    private class Enqueuer implements Runnable {
+    private class Slave implements Runnable {
         private MasterQueue masterQueue;
         private List<QueueItem> items;
 
-        public Enqueuer(MasterQueue masterQueue, List<QueueItem> items) {
+        public Slave(MasterQueue masterQueue, List<QueueItem> items) {
             this.masterQueue = masterQueue;
             this.items = items;
         }
@@ -130,7 +130,7 @@ public class MasterQueue {
                 }
             } catch (InterruptedException e) {
                 runPost();
-                log.info("Enqueuer: Stoped.");
+                log.info("Slave: Stoped.");
             } catch (Exception e) {
                 runPost();
                 log.error("Exception: " + e);
