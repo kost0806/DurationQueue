@@ -29,10 +29,8 @@ public abstract class QueueItem {
     }
 
     public void execute() {
-        onPreRun();
         recordTime();
         run();
-        onPostRun();
     }
 
     private void recordTime() {

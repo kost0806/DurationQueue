@@ -10,7 +10,6 @@ import java.util.List;
 public class MasterQueue {
     private static final Logger log = LogManager.getLogger();
 
-
     private List<QueueItem> queue;
     private List<QueueItem> items;
     private boolean isRunning;
@@ -38,14 +37,34 @@ public class MasterQueue {
         thread = null;
     }
 
-    public void registerItems(List<QueueItem> items) {
-        isItemRegistered = true;
-        this.items = items;
+    public boolean registerItem(List<QueueItem> items) {
+        if (isItemRegistered) {
+            return this.items.addAll(items);
+        }
+        else {
+            isItemRegistered = true;
+            this.items = items;
+            return true;
+        }
     }
 
     public boolean registerItem(QueueItem item) {
         isItemRegistered = true;
         return items.add(item);
+    }
+
+    private void runPost() {
+        log.info("Handle onPostRun...");
+        for (QueueItem item : items) {
+            item.onPostRun();
+        }
+    }
+
+    private void runPre() {
+        log.info("Handle onPreRun...");
+        for (QueueItem item : items) {
+            item.onPreRun();
+        }
     }
 
     public void run(OnRun onRun) {
@@ -55,6 +74,7 @@ public class MasterQueue {
             return;
         }
         isRunning = true;
+        runPre();
         thread = new Thread(new Enqueuer(this, items));
         thread.setName("Enqueuer");
         thread.start();
@@ -109,8 +129,10 @@ public class MasterQueue {
                     doInThread();
                 }
             } catch (InterruptedException e) {
+                runPost();
                 log.info("Enqueuer: Stoped.");
             } catch (Exception e) {
+                runPost();
                 log.error("Exception: " + e);
                 e.printStackTrace();
             }
